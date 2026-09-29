@@ -1,0 +1,34 @@
+
+name: 'Catu_Walmart_Project'
+version: '1.0.0'
+
+# This setting configures which "profile" dbt uses for this project.
+profile: 'Catu_Walmart_Project'
+
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+clean-targets:         # directories to be removed by `dbt clean`
+  - "target"
+  - "dbt_packages"
+
+models:
+  Catu_Walmart_Project:
+    # Config indicated by + and applies to all files under models/example/
+    Silver_tech:
+      +materialized: table
+      +schema: Silver_tech
+    Silver_b:
+      +materialized: table
+      +schema: Silver_b 
+    Gold:
+      +materialized: table
+      +schema: Gold
+      ephemeral:
+        +materialized: ephemeral  
+      

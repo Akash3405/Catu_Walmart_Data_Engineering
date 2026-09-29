@@ -1,0 +1,13 @@
+sources:
+  - name: Catu_Walmart_Project
+    database: Catu_Walmart
+    schema: bronze
+
+    tables:
+      - name: customers
+      - name: stores
+      - name: products
+      - name: orders
+      - name: order_items
+      - name: employees
+       

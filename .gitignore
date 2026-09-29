@@ -1,0 +1,40 @@
+# Python-generated files
+__pycache__/
+*.py[cod]
+build/
+dist/
+wheels/
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# dbt generated files
+**/target/
+**/dbt_packages/
+**/logs/
+
+# Python and tool cache
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# IDE settings
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# dbt credentials
+Catu_Walmart_Project/profiles.yml
+
+# Local dbt user settings
+**/.user.yml

@@ -1,0 +1,11 @@
+models:
+  - name: products_tech
+    columns:
+      - name: product_id
+        tests:
+          - not_null
+          - unique:
+              config:
+                where: "price > 0"
+
+   
