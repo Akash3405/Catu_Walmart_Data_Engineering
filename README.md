@@ -5,7 +5,7 @@
 
 ### From PostgreSQL Source Data to Analytics-Ready Gold Models
 
-**Building a scalable, modular data pipeline using Databricks, PySpark, SQL & dbt Core**
+**Building a modular data pipeline using Databricks, SQL, and dbt Core**
 
 <br/>
 
@@ -28,20 +28,21 @@
 
 ## 🎯 Project Overview
 
-This project demonstrates an **end-to-end Data Engineering workflow** that ingests Walmart business data from PostgreSQL into Databricks and transforms it into structured, analytics-ready datasets.
+This project demonstrates an end-to-end Data Engineering workflow that ingests Walmart business data from PostgreSQL into Databricks and transforms it into structured, analytics-ready datasets.
 
-The project focuses on modular transformations, configuration-driven SQL generation, reusable dbt logic, historical data tracking, and analytical data modeling.
+The project focuses on modular transformations, configuration-driven SQL generation, reusable dbt logic, historical data tracking, analytical data modeling, and scheduled execution.
 
 ### 💡 Key Highlights
 
 - 🔄 **Data Ingestion:** PostgreSQL source tables ingested into Databricks Bronze.
-- 🥉 **Bronze Layer:** Source data landing layer.
+- 🥉 **Bronze Layer:** Landing layer for ingested source data.
 - 🥈 **Silver Layer:** Entity-level SQL transformation models.
 - 🥇 **Gold Layer:** Analytical fact model for downstream reporting.
 - ⚙️ **Configuration-Driven SQL:** Jinja-based dynamic column selection and table joins.
-- 🧩 **Reusable dbt Logic:** Macros and ephemeral helper models.
+- 🧩 **Reusable dbt Logic:** Macros, model references, and ephemeral helper models.
 - 📸 **Historical Tracking:** dbt snapshot configurations for business entities.
-- 🚀 **Orchestration:** Databricks Workflows implementation in progress.
+- 🚀 **Orchestration:** Databricks ingestion pipeline and dbt transformation job configured on separate daily schedules.
+- 🧪 **Data Quality:** dbt tests configured for product ID uniqueness and non-null validation.
 
 ---
 
@@ -49,16 +50,17 @@ The project focuses on modular transformations, configuration-driven SQL generat
 
 ```mermaid
 flowchart TD
-    A["🐘 PostgreSQL / Neon"] --> B["📥 Data Ingestion"]
-    B --> C["🥉 Bronze Layer<br/>Databricks"]
-    C --> D["🥈 Silver Layer<br/>dbt SQL Models"]
-    D --> E["🥇 Gold Layer<br/>Fact Models"]
-    E --> F["📊 Analytics & Reporting"]
+    A["🐘 PostgreSQL / Neon"] --> B["📥 Databricks Ingestion Pipeline"]
+    B --> C["🥉 Bronze Layer"]
+    C --> D["🥈 Silver Layer - dbt Models"]
+    D --> E["🥇 Gold Layer - Fact Models"]
+    E --> F["📊 Analytics and Reporting"]
 
-    G["⚙️ dbt Jinja & Macros"] -.-> D
-    H["📸 dbt Snapshots"] -.-> D
+    G["⚙️ dbt Jinja and Macros"] -.-> D
+    H["📸 dbt Snapshots"] -.-> E
 
     style A fill:#4169E1,color:#ffffff,stroke:#294A9B
+    style B fill:#FF3621,color:#ffffff,stroke:#B92718
     style C fill:#CD7F32,color:#ffffff,stroke:#995C24
     style D fill:#A7B5C8,color:#111827,stroke:#64748B
     style E fill:#D4AF37,color:#111827,stroke:#9A7B17
@@ -71,7 +73,7 @@ flowchart TD
 |---|---|---|
 | 🥉 Bronze | Land ingested source tables | Databricks |
 | 🥈 Silver | Transform and organize entity-level data | dbt SQL models |
-| 🥇 Gold | Prepare analytical datasets | Fact model |
+| 🥇 Gold | Prepare analytical datasets | Fact model and snapshots |
 
 ---
 
@@ -79,16 +81,16 @@ flowchart TD
 
 | Technology | Role in the Project |
 |---|---|
-| 🐍 Python | Data ingestion scripts and utilities |
+| 🐍 Python | Data engineering utilities and scripting |
 | 🐘 PostgreSQL (Neon) | Source database |
 | 🔥 Databricks | Data platform and processing |
-| ⚡ PySpark / Spark SQL | Distributed data processing technologies |
+| ⚡ Apache Spark / PySpark | Distributed data processing capabilities |
 | 🧱 dbt Core | SQL transformation and model dependencies |
 | 🌀 Jinja | Dynamic SQL generation |
 | 🧩 dbt Macros | Reusable SQL logic |
 | 📸 dbt Snapshots | Historical change tracking configuration |
 | 🗂️ YAML | Source and project configuration |
-| 🌿 Git & GitHub | Version control and code repository |
+| 🌿 Git & GitHub | Version control and source code management |
 | 📦 uv | Python environment and dependency management |
 
 ---
@@ -97,7 +99,7 @@ flowchart TD
 
 ### 1. ⚙️ Configuration-Driven SQL Generation
 
-Implemented in `models/Silver_b/obt_b.sql` using Jinja templating.
+Implemented in `models/Silver_b/obt_b.sql` using dbt Jinja templating.
 
 - Dynamic SELECT column generation from configuration objects.
 - Configurable model references and table aliases.
@@ -109,7 +111,7 @@ Implemented in `models/Silver_b/obt_b.sql` using Jinja templating.
 
 ### 2. 🧱 Modular dbt Transformation Framework
 
-- SQL models organized by source, Silver, and Gold layers.
+- SQL models organized into source, Silver, and Gold layers.
 - YAML-based source definitions.
 - Reusable schema naming macro.
 - Ephemeral helper models for intermediate transformation logic.
@@ -125,38 +127,95 @@ Snapshot configuration files are defined for:
 - Products
 - Stores
 
-These configurations provide a foundation for historical change tracking. Snapshot strategies and SCD Type 2 behavior should be validated against the configured keys and change-detection logic.
+These configurations provide a foundation for historical change tracking. Snapshot strategies, unique keys, and SCD Type 2 behavior should be validated against the configured keys and change-detection logic.
 
 ### 4. 📊 Analytical Data Modeling
 
 - Entity-level Silver transformation models.
 - Gold-layer order fact model.
 - Structured transformation dependencies.
-- Modular SQL intended to improve maintainability and downstream analytical use.
+- Modular SQL designed to improve maintainability and downstream analytical use.
+
+### 5. 🧪 Data Quality Testing
+
+The dbt project includes tests for:
+
+- Product ID uniqueness.
+- Product ID non-null validation.
+
+The configured tests completed successfully during the verified dbt build run.
 
 ---
 
 ## 🔄 Data Pipeline Workflow
 
 ```text
-PostgreSQL Source
-       │
-       ▼
-Databricks Bronze
-       │
-       ▼
-dbt Silver Models
-       │
-       ├── Configuration-driven SQL
-       ├── Reusable macros
-       └── Ephemeral helper models
-       │
-       ▼
+PostgreSQL Source (Neon)
+          |
+          v
+Databricks Ingestion Pipeline
+          |
+          v
+Bronze Layer
+          |
+          v
+Silver dbt Models
+    |         |
+    |         +-- Configuration-driven SQL
+    |         +-- Reusable macros
+    |         +-- Ephemeral helper models
+          |
+          v
 Gold Fact Model
-       │
-       ▼
-Analytics & Reporting
+          |
+          v
+Analytics and Reporting
 ```
+
+---
+
+## ⏰ Orchestration & Scheduling
+
+The project uses Databricks Jobs and Pipelines to schedule ingestion and dbt transformations.
+
+| Component | Schedule (IST) | Purpose |
+|---|---|---|
+| PostgreSQL Ingestion Pipeline | Daily, 6:00 AM | Ingest source data into the Bronze layer |
+| dbt Transformation Job | Daily, 7:00 AM | Execute `dbt deps` and `dbt build` |
+
+### dbt Transformation Commands
+
+**Step 1: Install project dependencies**
+
+```bash
+dbt deps
+```
+
+Checks `packages.yml` for declared dbt packages and installs configured dependencies. If no packages are declared, dbt may report that no packages were found.
+
+**Step 2: Build transformation models**
+
+```bash
+dbt build
+```
+
+Builds configured models and executes applicable tests, snapshots, and seeds according to project configuration and model dependencies.
+
+### Execution Monitoring
+
+The dbt job was manually executed and completed successfully in Databricks.
+
+Verified execution results:
+
+- 6 incremental models completed successfully.
+- 2 table models completed successfully.
+- 5 snapshots completed successfully.
+- 2 data tests passed.
+- Total: 15 successful operations.
+- Errors: 0.
+- Execution time: approximately 47 seconds.
+
+**Scheduling note:** Ingestion and dbt currently use separate time-based schedules. The dbt job is scheduled one hour after ingestion. A time gap does not guarantee that ingestion has completed successfully before dbt starts; explicit dependency-aware orchestration and failure handling remain planned enhancements.
 
 ---
 
@@ -194,43 +253,46 @@ Akash_DE_2026/
 | Component | Status |
 |---|---|
 | PostgreSQL source data setup | ✅ Completed |
-| Databricks Bronze ingestion | ✅ Completed |
-| Silver transformation models | ✅ Created |
-| Gold fact model | ✅ Created |
+| Databricks Bronze ingestion | ✅ Implemented |
+| Silver transformation models | ✅ Created and executed |
+| Gold fact model | ✅ Created and executed |
 | Configuration-driven SQL generation | ✅ Implemented |
-| dbt macros and ephemeral model configurations | ✅ Added |
-| Snapshot configuration files | ✅ Added |
+| dbt macros and ephemeral helper models | ✅ Added |
+| Snapshot configuration files | ✅ Added and executed |
 | Git and GitHub version control | ✅ Completed |
-| Databricks Workflows orchestration | ✅ Completed |
-| End-to-end scheduled execution | ✅ Completed |
-| Automated data quality validation | ✅ Completed |
+| Databricks ingestion schedule | ✅ Configured for 6:00 AM IST |
+| dbt transformation schedule | ✅ Configured for 7:00 AM IST |
+| Manual dbt build validation | ✅ Successful |
+| Dependency-aware ingestion and dbt orchestration | 🟡 Planned |
+| Automated failure handling and notifications | 🟡 Planned |
+| Snapshot strategy and SCD Type 2 validation | 🟡 Planned |
 
 ---
 
 ## 🔮 Planned Enhancements
 
-- 🚀 Orchestrate ingestion and dbt transformations through Databricks Workflows.
-- 🧪 Execute dbt tests and validate data quality.
+- 🔗 Configure dependency-aware orchestration between ingestion and dbt transformations.
+- 🧪 Expand automated data quality checks.
 - 📸 Validate snapshot behavior and SCD Type 2 requirements.
 - ⚡ Evaluate incremental processing where appropriate.
-- 📈 Add execution monitoring and failure handling.
+- 📈 Improve execution monitoring, failure handling, and notifications.
 - 📚 Document pipeline dependencies, lineage, and operational procedures.
 
 ---
 
 ## 💼 Skills Demonstrated
 
-`SQL` · `Python` · `PostgreSQL` · `Databricks` · `PySpark` · `dbt Core` · `Jinja` · `Data Modeling` · `Git` · `GitHub`
+`SQL` · `Python` · `PostgreSQL` · `Databricks` · `Apache Spark` · `dbt Core` · `Jinja` · `Data Modeling` · `Data Quality` · `Git` · `GitHub`
 
 ---
 
 <div align="center">
 
-### ⭐ Explore the Project
+## ⭐ Explore the Project
 
 **Thanks for visiting!**
 
-[![GitHub](https://img.shields.io/badge/Explore%20Source%20Code-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Akash3405/Catu_Walmart_Data_Engineering)
+[![Explore Source Code](https://img.shields.io/badge/Explore%20Source%20Code-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Akash3405/Catu_Walmart_Data_Engineering)
 
 *Built as a hands-on Data Engineering portfolio project.*
 
